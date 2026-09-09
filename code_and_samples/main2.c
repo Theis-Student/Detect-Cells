@@ -5,10 +5,10 @@ int y = BMP_HEIGTH;
 
 
 
-void main(){
-    int image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-    read_bitmap("code_and_samples/code_and_samples/samples/easy/1EASY.bmp", image);
-    printf(image);
+int main(void){
+    unsigned char image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+    read_bitmap("samples/easy/1EASY.bmp", image);
+    printf("%d\n", image[0][0][0]);
     return 0;
 }
 
@@ -27,7 +27,6 @@ int grayScale(){
         }
     }
 }
-*/
 
 
 int threshhold(){
@@ -50,3 +49,4 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
     [BMP_HEIGTH][BMP_CHANNELS],
     char * output_file_path
 );
+*/
