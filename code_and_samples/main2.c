@@ -20,6 +20,12 @@ int countCells = 0;
 int finish = 1;
 int countBlack = 0;
 
+typedef struct{
+    int x;
+    int y;
+} Cellcoordinate;
+
+Cellcoordinate cell_list[1000];
 
 unsigned char image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char gray_px[BMP_WIDTH][BMP_HEIGTH];
@@ -33,13 +39,12 @@ void read_bitmap(char * input_file_path,
 
 
 
-int grayScale(void){
-    for(x = 0; x < BMP_WIDTH-1; x++){
-        for(y = 0; y < BMP_HEIGTH-1; y++){
+void grayScale(void){
+    for(x = 0; x < BMP_WIDTH; x++){
+        for(y = 0; y < BMP_HEIGTH; y++){
            gray_px[x][y] = (image[x][y][0]+image[x][y][1]+image[x][y][2])/3;
         }
     }
-    return 0;
 }
 
 int convert2Dto3D(void){
@@ -70,32 +75,24 @@ int threshHold(void){
     return 0;
 }
 
-int erosion(){
+void erosion(){
     int neighbors = 0;
     unsigned char out[BMP_WIDTH][BMP_HEIGTH];
 
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
-            if (x-1 >= 0){
-                if(gray_px[x-1][y] > 0){
+            if (x-1 >= 0 && gray_px[x-1][y] > 0){
                     neighbors++;
-                }
             }
-            if (x+1 <= BMP_WIDTH){
-                if(gray_px[x+1][y] > 0){
+            if (x + 1 < BMP_WIDTH && gray_px[x+1][y] > 0){
                     neighbors++;
-                }
             }
-            if(y - 1 >= 0){
-                if(gray_px[x][y-1] > 0){
+            if(y - 1 >= 0 && gray_px[x][y-1] > 0){
                     neighbors++;
-                }
             }
             
-            if (y + 1 <= BMP_HEIGTH){
-                if (gray_px[x][y+1]){
+            if (y + 1 < BMP_HEIGTH && gray_px[x][y+1] > 0){
                     neighbors++;
-                }
             }
             if (neighbors == 4){
                 out[x][y] = gray_px[x][y];
@@ -105,7 +102,6 @@ int erosion(){
             //printf("%d",neighbors);
             neighbors = 0;
             }
-            
         }
     for(x = 0; x < BMP_WIDTH; x++){
         for(y = 0; y < BMP_HEIGTH;y++){
@@ -114,17 +110,23 @@ int erosion(){
     }
 }
 int detectCoconut(int x, int y){
-        for(a = 1; a < 13; a++){
-            for(b = 1; b < 13; b++){
+        // Ikke < 12, men <= 12, fordi noget af cellen vil stadig være tilbage efter detect
+        for(a = 1; a <= 12; a++){
+            for(b = 1; b <= 12; b++){
                 if(gray_px[x+a][y+b] > 0){
-                    for(int n = 1; n < 13; n++){
-                        for(int m = 1; m < 13; m++){
+
+                    for(int n = 1; n <= 12; n++){
+                        for(int m = 1; m <= 12; m++){
                             gray_px[x+n][y+m] = 0;
                         }
                     }
+
+                    cell_list[countCells].x = x + 6;
+                    cell_list[countCells].y = y + 6;
+
                     countCells++;
                     printf("%d ",countCells);
-                    return 0;
+                    return 1;
                 }
             }
         }
@@ -142,25 +144,30 @@ int detectCells(){
                 }
             }
             // Bottom
-            for(i = 0; i < 13; i++){
+            for(i = 0; i < 14; i++){
                 if(gray_px[x+i][y+13] == 0){
                     countBlack++;
                 }
             }
             //Left
-            for(j = 1; j < 14; j++){
+            //Ikke < 14, men <= 12
+            for(j = 1; j <= 12; j++){
                 if(gray_px[x][y+j] == 0){
                     countBlack++;
                 }
             }
             //Right
-            for(j = 1; j < 13; j++){
+            // Ikke < 13 men <= 12
+            for(j = 1; j <= 12; j++){
                 if(gray_px[x+13][y+j] == 0){
                     countBlack++;
                 }
             }
             if(countBlack == 52){
-                detectCoconut(x,y);
+                if(detectCoconut(x,y)){
+                    y+=12; // To the next 12 X 12
+                }
+                
             }
             
             //printf("%d ",countBlack);
@@ -169,7 +176,28 @@ int detectCells(){
         }
     }
 }
+int drawRedCross(void){
+    int rad = 6; // length of 1 arm of the cross
 
+    for(int k = 0; k < countCells; k++){
+        int cx = cell_list[k].x;
+        int cy = cell_list[k].y;
+        //From center draws line [-rad,rad]
+        for(int offset = -rad; offset <= rad; offset++){
+            if(cx + offset >= 0 && cx + offset < BMP_WIDTH){
+                image[cx + offset][cy][0] = 255; // red
+                image[cx + offset][cy][1] = 0; // green
+                image[cx + offset][cy][2] = 0; // blue
+            }
+            if(cy + offset >= 0 && cy + offset < BMP_WIDTH){
+                image[cx][cy + offset][0] = 255; // red
+                image[cx][cy + offset][1] = 0; // green
+                image[cx][cy + offset][2] = 0; // blue
+            }
+
+        }
+    }
+}
 void outImage(){
 
 }
@@ -194,16 +222,26 @@ int main(void){
     sleep(1);
     convert2Dto3D();
     write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
+
+    // Stop requirement, stop if all pixels are black
+    int whiteCount = 0;
     for(x = 0; x < BMP_WIDTH; x++){
         for(y = 0; y < BMP_HEIGTH; y++){
-            if(gray_px[x][y] == 0){
-                countBlack++;
-            }
-            if(countBlack == BMP_WIDTH*BMP_HEIGTH){
-                finish = 0;
+            if(gray_px[x][y] > 0){
+                whiteCount ++;
             }
         }
     }
+    if(whiteCount = 0){
+        finish = 0;
     }
+    }
+    
+    for(int k = 0; k < countCells; k++){
+        printf("Celle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
+    }
+
+    drawRedCross();
+    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     return 0;
 }
