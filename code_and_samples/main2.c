@@ -3,6 +3,11 @@
 #include <time.h> 
 #include <unistd.h> 
 
+clock_t start, end;
+double cpu_time_used;
+
+
+
 int x = BMP_WIDTH;
 int y = BMP_HEIGTH;
 
@@ -64,7 +69,7 @@ int threshHold(void){
     int max = 90;
     for(x = 0; x < BMP_WIDTH; x++){
         for(y = 0; y < BMP_HEIGTH;y++){
-            if(gray_px[x][y] <= 90){
+            if(gray_px[x][y] <= max){
                 gray_px[x][y] = 0;
             } else{
                 gray_px[x][y] = 255;
@@ -80,7 +85,7 @@ void erosion(){
 
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
-
+            if (gray_px[x][y] > 0){
             for(int i = -1; i <= 1; i++){
                 for(int j = -1; j <= 1; j++){
                     if (x + i >= 0 && x + i < BMP_WIDTH &&
@@ -92,7 +97,8 @@ void erosion(){
                         }
                     }
                 }
-            }       
+            } 
+        }      
         }         
             if (neighbors >= 7){
                 out[x][y] = gray_px[x][y];
@@ -125,7 +131,7 @@ int detectCoconut(int x, int y){
                     cell_list[countCells].y = y + 6;
 
                     countCells++;
-                    printf("%d ",countCells);
+                    //printf("%d ",countCells);
                     return 1;
                 }
             }
@@ -207,6 +213,7 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
 
 int main(void){
     //read_bitmap("samples/easy/1EASY.bmp", image);
+    start = clock();
    read_bitmap("samples/medium/1MEDIUM.bmp", image);
 
     grayScale();
@@ -220,7 +227,7 @@ int main(void){
     countBlack = 0;
     erosion();
     detectCells();
-    sleep(1);
+    sleep(10);
     convert2Dto3D();
     //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
@@ -245,5 +252,9 @@ int main(void){
     drawRedCross();
     //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    end = clock(); 
+    cpu_time_used = end - start;
+    printf("Total time: %f ms\n", cpu_time_used * 1000.0 /
+    CLOCKS_PER_SEC);
     return 0;
 }
