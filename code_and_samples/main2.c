@@ -81,20 +81,21 @@ void erosion(){
 
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
-            if (x-1 >= 0 && gray_px[x-1][y] > 0){
-                    neighbors++;
-            }
-            if (x + 1 < BMP_WIDTH && gray_px[x+1][y] > 0){
-                    neighbors++;
-            }
-            if(y - 1 >= 0 && gray_px[x][y-1] > 0){
-                    neighbors++;
-            }
-            
-            if (y + 1 < BMP_HEIGTH && gray_px[x][y+1] > 0){
-                    neighbors++;
-            }
-            if (neighbors == 4){
+
+            for(int i = -3; i <= 3; i++){
+                for(int j = -3; j <= 3; j++){
+                    if (x + i >= 0 && x + i < BMP_WIDTH &&
+                        y + j >= 0 && y + j < BMP_HEIGTH) {
+
+                            if (i != 0 || j != 0) {
+                            if (gray_px[x + i][y + j] > 0) {
+                                neighbors++;
+                        }
+                    }
+                }
+            }       
+        }         
+            if (neighbors >= 45){
                 out[x][y] = gray_px[x][y];
             } else {
                 out[x][y] = 0;
@@ -220,7 +221,7 @@ int main(void){
     countBlack = 0;
     erosion();
     detectCells();
-    //sleep(1);
+    sleep(1);
     convert2Dto3D();
     //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
