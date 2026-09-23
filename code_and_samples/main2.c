@@ -59,22 +59,65 @@ int convert2Dto3D(void){
     }
     return 0;
 }
-int otsu(const unsigned char *image){
+int otsu(const unsigned char *otsu_image) {
     int total_num_px = BMP_WIDTH * BMP_HEIGTH;
-    
+    int histogram[256] = {0};
+
+    // 1. Build histogram
+    for (int k = 0; k < total_num_px; k++) {
+        histogram[otsu_image[k]]++;
+    }
+
+    // 2. Compute total intensity sum
+    double total_sum = 0;
+    for (int k = 0; k < 256; k++) {
+        total_sum += k * histogram[k];
+    }
+
+    double sum_background = 0;
+    long weight_background = 0;
+
+    double max_between_variance = -1.0;
+    int best_threshold = 0;
+
+    // 3. Evaluate candidate thresholds
+    for (int t = 0; t < 256; t++) {
+        weight_background += histogram[t]; // Fixed: used 't' instead of 'i'
+        if (weight_background == 0) continue;
+
+        long weight_foreground = total_num_px - weight_background;
+        if (weight_foreground == 0) break;
+
+        sum_background += (double)(t * histogram[t]); // Fixed: update running sum
+
+        double mean_background = sum_background / weight_background;
+        double mean_foreground = (total_sum - sum_background) / weight_foreground;
+
+        double mean_diff = mean_background - mean_foreground;
+        double between_variance = (double)weight_background * 
+                                  (double)weight_foreground * 
+                                  mean_diff * mean_diff;
+
+        if (between_variance > max_between_variance) {
+            max_between_variance = between_variance;
+            best_threshold = t;
+        }
+    }
+
+    return best_threshold;
 }
 int threshHold(void){
-    int max = 90;
+    int optimal_threshold = otsu(&gray_px[0][0]);
+    printf("Computed Otsu Threshold: %d\n", optimal_threshold);
     for(x = 0; x < BMP_WIDTH; x++){
         for(y = 0; y < BMP_HEIGTH;y++){
-            if(gray_px[x][y] <= max){
+            if(gray_px[x][y] <= optimal_threshold){
                 gray_px[x][y] = 0;
-            } else if(gray_px[x][y] > max){
+            } else{
                 gray_px[x][y] = 255;
     }
         }
     }
-    
     return 0;
 }
 
