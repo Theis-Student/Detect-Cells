@@ -59,7 +59,10 @@ int convert2Dto3D(void){
     }
     return 0;
 }
-
+int otsu(const unsigned char *image){
+    int total_num_px = BMP_WIDTH * BMP_HEIGTH;
+    
+}
 int threshHold(void){
     int max = 90;
     for(x = 0; x < BMP_WIDTH; x++){
@@ -82,8 +85,8 @@ void erosion(){
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
 
-            for(int i = -3; i <= 3; i++){
-                for(int j = -3; j <= 3; j++){
+            for(int i = -1; i <= 1; i++){
+                for(int j = -1; j <= 1; j++){
                     if (x + i >= 0 && x + i < BMP_WIDTH &&
                         y + j >= 0 && y + j < BMP_HEIGTH) {
 
@@ -95,7 +98,7 @@ void erosion(){
                 }
             }       
         }         
-            if (neighbors >= 45){
+            if (neighbors >= 7){
                 out[x][y] = gray_px[x][y];
             } else {
                 out[x][y] = 0;
