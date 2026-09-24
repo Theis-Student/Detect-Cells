@@ -150,6 +150,7 @@ int detectCells(){
                 }
             }
             //Left
+            //Ikke < 14, men <= 12
             for(j = 1; j <= 12; j++){
                 if(gray_px[x][y+j] == 0){
                     countBlack++;
@@ -164,8 +165,9 @@ int detectCells(){
             }
             if(countBlack == 52){
                 if(detectCoconut(x,y)){
+                    y+=12; // To the next 12 X 12
                 }
-                y+=12;
+                
             }
             
             //printf("%d ",countBlack);
@@ -206,24 +208,20 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
 );
 
 int main(void){
-    //read_bitmap("samples/easy/1EASY.bmp", image);
-   read_bitmap("samples/medium/1MEDIUM.bmp", image);
-
+    read_bitmap("samples/easy/1EASY.bmp", image);
     grayScale();
     threshHold();
     convert2Dto3D();
-    //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
     printf("%d ",countCells);
 
     while(finish){
     countBlack = 0;
     erosion();
     detectCells();
-    //sleep(1);
+    sleep(1);
     convert2Dto3D();
-    //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
+    write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
 
     // Stop requirement, stop if all pixels are black
     int whiteCount = 0;
@@ -234,16 +232,16 @@ int main(void){
             }
         }
     }
-    if(whiteCount == 0){
+    if(whiteCount = 0){
         finish = 0;
     }
     }
+    
     for(int k = 0; k < countCells; k++){
-        printf("\nCelle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
+        printf("Celle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
     }
 
     drawRedCross();
-    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
-    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     return 0;
 }
