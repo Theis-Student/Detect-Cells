@@ -6,7 +6,6 @@
 clock_t start, end;
 double cpu_time_used;
 
-
 int x = BMP_WIDTH;
 int y = BMP_HEIGTH;
 
