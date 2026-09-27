@@ -3,6 +3,11 @@
 #include <time.h> 
 #include <unistd.h> 
 
+clock_t start, end;
+double cpu_time_used;
+
+
+
 int x = BMP_WIDTH;
 int y = BMP_HEIGTH;
 
@@ -11,6 +16,8 @@ int j = BMP_HEIGTH;
 
 int a = BMP_WIDTH;
 int b = BMP_HEIGTH;
+
+int exclusionSize = 18;
 
 int countCells = 0;
 
@@ -66,12 +73,11 @@ int threshHold(void){
         for(y = 0; y < BMP_HEIGTH;y++){
             if(gray_px[x][y] <= max){
                 gray_px[x][y] = 0;
-            } else if(gray_px[x][y] > max){
+            } else{
                 gray_px[x][y] = 255;
     }
         }
     }
-    
     return 0;
 }
 
@@ -81,25 +87,27 @@ void erosion(){
 
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
-            if (x-1 >= 0 && gray_px[x-1][y] > 0){
-                    neighbors++;
-            }
-            if (x + 1 < BMP_WIDTH && gray_px[x+1][y] > 0){
-                    neighbors++;
-            }
-            if(y - 1 >= 0 && gray_px[x][y-1] > 0){
-                    neighbors++;
-            }
-            
-            if (y + 1 < BMP_HEIGTH && gray_px[x][y+1] > 0){
-                    neighbors++;
-            }
-            if (neighbors == 4){
+            if (gray_px[x][y] > 0){
+            for(int i = -2; i <= 2; i++){
+                for(int j = -2; j <= 2; j++){
+                    if (x + i >= 0 && x + i < BMP_WIDTH &&
+                        y + j >= 0 && y + j < BMP_HEIGTH) {
+
+                            if (i != 0 || j != 0) {
+                            if (gray_px[x + i][y + j] > 0) {
+                                neighbors++;
+                        }
+                    }
+                }
+            } 
+        }      
+        }         
+            if (neighbors >= 23){
                 out[x][y] = gray_px[x][y];
             } else {
                 out[x][y] = 0;
             }
-            //printf("%d",neighbors);
+            //printf("%d ",neighbors);
             neighbors = 0;
             }
         }
@@ -111,21 +119,21 @@ void erosion(){
 }
 int detectCoconut(int x, int y){
         // Ikke < 12, men <= 12, fordi noget af cellen vil stadig være tilbage efter detect
-        for(a = 1; a <= 12; a++){
-            for(b = 1; b <= 12; b++){
+        for(a = 1; a <= exclusionSize-2; a++){
+            for(b = 1; b <= exclusionSize-2; b++){
                 if(gray_px[x+a][y+b] > 0){
 
-                    for(int n = 1; n <= 12; n++){
-                        for(int m = 1; m <= 12; m++){
+                    for(int n = 1; n <= exclusionSize-2; n++){
+                        for(int m = 1; m <= exclusionSize-2; m++){
                             gray_px[x+n][y+m] = 0;
                         }
                     }
 
-                    cell_list[countCells].x = x + 6;
-                    cell_list[countCells].y = y + 6;
+                    cell_list[countCells].x = x + ((exclusionSize-2)/2);
+                    cell_list[countCells].y = y + ((exclusionSize-2)/2);
 
                     countCells++;
-                    printf("%d ",countCells);
+                    //printf("%d ",countCells);
                     return 1;
                 }
             }
@@ -135,39 +143,37 @@ int detectCoconut(int x, int y){
 
 int detectCells(){
     countBlack = 0;
-    for(x = 0; x < BMP_WIDTH-14; x++){
-        for(y = 0; y < BMP_HEIGTH-14; y++){
+    for(x = 0; x < BMP_WIDTH-exclusionSize; x++){
+        for(y = 0; y < BMP_HEIGTH-exclusionSize; y++){
             // Top
-            for(i = 0; i < 14; i++){
+            for(i = 0; i < exclusionSize; i++){
                 if(gray_px[x+i][y] == 0){
                     countBlack++;
                 }
             }
             // Bottom
-            for(i = 0; i < 14; i++){
-                if(gray_px[x+i][y+13] == 0){
+            for(i = 0; i < exclusionSize; i++){
+                if(gray_px[x+i][y+exclusionSize-1] == 0){
                     countBlack++;
                 }
             }
             //Left
-            //Ikke < 14, men <= 12
-            for(j = 1; j <= 12; j++){
+            for(j = 1; j <= exclusionSize-2; j++){
                 if(gray_px[x][y+j] == 0){
                     countBlack++;
                 }
             }
             //Right
             // Ikke < 13 men <= 12
-            for(j = 1; j <= 12; j++){
-                if(gray_px[x+13][y+j] == 0){
+            for(j = 1; j <= exclusionSize-2; j++){
+                if(gray_px[x+exclusionSize-1][y+j] == 0){
                     countBlack++;
                 }
             }
-            if(countBlack == 52){
+            if(countBlack == (exclusionSize*4)-4){
                 if(detectCoconut(x,y)){
-                    y+=12; // To the next 12 X 12
                 }
-                
+                y+=exclusionSize-2;
             }
             
             //printf("%d ",countBlack);
@@ -208,21 +214,23 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
 );
 
 int main(void){
-    read_bitmap("samples/easy/1EASY.bmp", image);
+    //read_bitmap("samples/easy/1EASY.bmp", image);
+    start = clock();
+   read_bitmap("samples/medium/1MEDIUM.bmp", image);
     grayScale();
     threshHold();
     convert2Dto3D();
-    write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
-    printf("%d ",countCells);
-
+    //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
+    write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    //printf("%d ",countCells);
     while(finish){
     countBlack = 0;
     erosion();
     detectCells();
-    sleep(1);
+    //sleep(1);
     convert2Dto3D();
-    write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
-
+    //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
+    write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
     // Stop requirement, stop if all pixels are black
     int whiteCount = 0;
     for(x = 0; x < BMP_WIDTH; x++){
@@ -232,16 +240,20 @@ int main(void){
             }
         }
     }
-    if(whiteCount = 0){
+    if(whiteCount == 0){
         finish = 0;
     }
     }
-    
     for(int k = 0; k < countCells; k++){
-        printf("Celle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
+        printf("\nCelle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
     }
 
     drawRedCross();
-    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    end = clock(); 
+    cpu_time_used = end - start;
+    printf("Total time: %f ms\n", cpu_time_used * 1000.0 /
+    CLOCKS_PER_SEC);
     return 0;
 }
