@@ -2,27 +2,15 @@
 #include <stdio.h>
 #include <time.h> 
 #include <unistd.h> 
-#include <stdint.h>
 #include <string.h>
 clock_t start, end;
 double cpu_time_used;
 
 
-
 int x = BMP_WIDTH;
 int y = BMP_HEIGTH;
 
-int i = BMP_WIDTH;
-int j = BMP_HEIGTH;
-
-int a = BMP_WIDTH;
-int b = BMP_HEIGTH;
-
 int countCells = 0;
-
-//buffer1 
-//buffer2
-
 int finish = 1;
 int countBlack = 0;
 
@@ -34,19 +22,24 @@ typedef struct{
 Cellcoordinate cell_list[1000];
 
 unsigned char image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-unsigned char gray_px[BMP_WIDTH][BMP_HEIGTH];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
+//makes sure that the HEIGTH is divisible by 8
 #define BIT_HEIGHT ((BMP_HEIGTH + 7) / 8)
-uint8_t gray_bit_px[BMP_WIDTH][BIT_HEIGHT];  
+// Defining that 1 byte contains 8 pixels
+unsigned char gray_bit_px[BMP_WIDTH][BIT_HEIGHT];  
+
 
 void bit_px(int x, int y, int val){    
     if (x < 0 || x >= BMP_WIDTH || y < 0 || y >= BMP_HEIGTH) return;    
     if(val){        
-        gray_bit_px[x][y/8] |= (1 << (y % 8));    
+        gray_bit_px[x][y/8] |= (1 << (y % 8));  
+        //turns only that one bit on and does not change any other 
     }else{        
-        gray_bit_px[x][y/8] &= ~(1 <<(y % 8));    }
-    } 
+        gray_bit_px[x][y/8] &= ~(1 <<(y % 8));
+        //turns only that one bit off
+    }
+} 
 
 int get_bit_px(int x, int y){    
     if (x < 0 || x >= BMP_WIDTH || y < 0 || y >= BMP_HEIGTH) return 0;    
@@ -84,7 +77,7 @@ int threshHold(void){
 
 void erosion(){
     unsigned char out[BMP_WIDTH][BMP_HEIGTH];    
-    uint8_t bitOut[BMP_WIDTH][BIT_HEIGHT] = {0};
+    unsigned char bitOut[BMP_WIDTH][BIT_HEIGHT] = {0};
 
     for (x = 0;x < BMP_WIDTH; x++){
         for (y = 0; y < BMP_HEIGTH; y++){
@@ -112,8 +105,8 @@ void erosion(){
 
 int detectCoconut(int x, int y){
         // Ikke < 12, men <= 12, fordi noget af cellen vil stadig være tilbage efter detect
-        for(a = 1; a <= 12; a++){
-            for(b = 1; b <= 12; b++){
+        for(int a = 1; a <= 12; a++){
+            for(int b = 1; b <= 12; b++){
                 if(get_bit_px(x+a,y+b) == 1){
 
                     for(int n = 1; n <= 12; n++){
@@ -138,26 +131,26 @@ int detectCells(){
     for(x = 0; x < BMP_WIDTH-14; x++){
         for(y = 0; y < BMP_HEIGTH-14; y++){
             // Top
-            for(i = 0; i < 14; i++){
+            for(int i = 0; i < 14; i++){
                 if(get_bit_px(x+i,y) == 0){
                     countBlack++;
                 }
             }
             // Bottom
-            for(i = 0; i < 14; i++){
+            for(int i = 0; i < 14; i++){
                 if(get_bit_px(x+i,y+13) == 0){
                     countBlack++;
                 }
             }
             //Left
-            for(j = 1; j <= 12; j++){
+            for(int j = 1; j <= 12; j++){
                 if(get_bit_px(x,y+j) == 0){
                     countBlack++;
                 }
             }
             //Right
             // Ikke < 13 men <= 12
-            for(j = 1; j <= 12; j++){
+            for(int j = 1; j <= 12; j++){
                 if(get_bit_px(x+13,y+j) == 0){
                     countBlack++;
                 }
