@@ -227,7 +227,7 @@ int main(void){
     countBlack = 0;
     erosion();
     detectCells();
-    sleep(10);
+    sleep(1);
     convert2Dto3D();
     //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
