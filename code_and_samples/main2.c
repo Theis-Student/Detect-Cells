@@ -117,18 +117,18 @@ void erosion(){
 }
 int detectCoconut(int x, int y){
         // Ikke < 12, men <= 12, fordi noget af cellen vil stadig være tilbage efter detect
-        for(a = 1; a <= 12; a++){
-            for(b = 1; b <= 12; b++){
+        for(a = 1; a <= 18; a++){
+            for(b = 1; b <= 18; b++){
                 if(gray_px[x+a][y+b] > 0){
 
-                    for(int n = 1; n <= 12; n++){
-                        for(int m = 1; m <= 12; m++){
+                    for(int n = 1; n <= 18; n++){
+                        for(int m = 1; m <= 18; m++){
                             gray_px[x+n][y+m] = 0;
                         }
                     }
 
-                    cell_list[countCells].x = x + 6;
-                    cell_list[countCells].y = y + 6;
+                    cell_list[countCells].x = x + 9;
+                    cell_list[countCells].y = y + 9;
 
                     countCells++;
                     //printf("%d ",countCells);
@@ -141,37 +141,37 @@ int detectCoconut(int x, int y){
 
 int detectCells(){
     countBlack = 0;
-    for(x = 0; x < BMP_WIDTH-14; x++){
-        for(y = 0; y < BMP_HEIGTH-14; y++){
+    for(x = 0; x < BMP_WIDTH-20; x++){
+        for(y = 0; y < BMP_HEIGTH-20; y++){
             // Top
-            for(i = 0; i < 14; i++){
+            for(i = 0; i < 20; i++){
                 if(gray_px[x+i][y] == 0){
                     countBlack++;
                 }
             }
             // Bottom
-            for(i = 0; i < 14; i++){
-                if(gray_px[x+i][y+13] == 0){
+            for(i = 0; i < 20; i++){
+                if(gray_px[x+i][y+19] == 0){
                     countBlack++;
                 }
             }
             //Left
-            for(j = 1; j <= 12; j++){
+            for(j = 1; j <= 18; j++){
                 if(gray_px[x][y+j] == 0){
                     countBlack++;
                 }
             }
             //Right
             // Ikke < 13 men <= 12
-            for(j = 1; j <= 12; j++){
-                if(gray_px[x+13][y+j] == 0){
+            for(j = 1; j <= 18; j++){
+                if(gray_px[x+19][y+j] == 0){
                     countBlack++;
                 }
             }
-            if(countBlack == 52){
+            if(countBlack == 76){
                 if(detectCoconut(x,y)){
                 }
-                y+=12;
+                y+=18;
             }
             
             //printf("%d ",countBlack);
