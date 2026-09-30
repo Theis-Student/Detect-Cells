@@ -13,12 +13,14 @@ int countCells = 0;
 int finish = 1;
 int countBlack = 0;
 
+int exclusionSize = 18;
+
 typedef struct{
     int x;
     int y;
 } Cellcoordinate;
 
-Cellcoordinate cell_list[1000];
+Cellcoordinate cell_list[400];
 
 unsigned char image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -27,6 +29,7 @@ unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 #define BIT_HEIGHT ((BMP_HEIGTH + 7) / 8)
 // Defining that 1 byte contains 8 pixels
 unsigned char gray_bit_px[BMP_WIDTH][BIT_HEIGHT];  
+
 
 
 void bit_px(int x, int y, int val){    
@@ -50,6 +53,10 @@ void read_bitmap(char * input_file_path,
             [BMP_HEIGTH][BMP_CHANNELS]
 );
 
+void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
+    [BMP_HEIGTH][BMP_CHANNELS],
+    char * output_file_path
+);
 
 int convertBitTo3D(void){    
     for(int x = 0; x < BMP_WIDTH; x++){
@@ -75,6 +82,7 @@ int threshHold(void){
 }
 
 void erosion(){
+
     unsigned char out[BMP_WIDTH][BMP_HEIGTH];    
     unsigned char bitOut[BMP_WIDTH][BIT_HEIGHT] = {0};
 
@@ -83,8 +91,8 @@ void erosion(){
 
             if (get_bit_px(x,y) == 1){
                 int neighbors = 0;
-                for(int i = -1; i <= 1; i++){
-                    for(int j = -1; j <= 1; j++){
+                for(int i = -2; i <= 2; i++){
+                    for(int j = -2; j <= 2; j++){
 
                     if(i == 0 && j == 0) continue;
                     if (x + i >= 0 && x + i < BMP_WIDTH &&
@@ -93,7 +101,7 @@ void erosion(){
                 }
             } 
         }             
-            if (neighbors >= 7){
+            if (neighbors >= 23){
                 bitOut[x][y/8] |= (1 << (y % 8));
             }
             }
@@ -104,18 +112,18 @@ void erosion(){
 
 int detectCoconut(int x, int y){
         // Ikke < 12, men <= 12, fordi noget af cellen vil stadig være tilbage efter detect
-        for(int a = 1; a <= 12; a++){
-            for(int b = 1; b <= 12; b++){
+        for(int a = 1; a <= exclusionSize-2; a++){
+            for(int b = 1; b <= exclusionSize-2; b++){
                 if(get_bit_px(x+a,y+b) == 1){
-
-                    for(int n = 1; n <= 12; n++){
-                        for(int m = 1; m <= 12; m++){
+                    
+                    for(int n = 1; n <= exclusionSize-2; n++){
+                        for(int m = 1; m <= exclusionSize-2; m++){
                             bit_px(x+n,y+m,0);
                         }
                     }
-                    if(countCells < 1000){
-                    cell_list[countCells].x = x + 6;
-                    cell_list[countCells].y = y + 6;
+                    if(countCells < 400){
+                    cell_list[countCells].x = x + ((exclusionSize-2)/2);
+                    cell_list[countCells].y = y + ((exclusionSize-2)/2);
                     countCells++;
                     }
                     return 1;
@@ -127,37 +135,37 @@ int detectCoconut(int x, int y){
 
 int detectCells(){
     countBlack = 0;
-    for(x = 0; x < BMP_WIDTH-14; x++){
-        for(y = 0; y < BMP_HEIGTH-14; y++){
+    for(x = 0; x < BMP_WIDTH-exclusionSize; x++){
+        for(y = 0; y < BMP_HEIGTH-exclusionSize; y++){
             // Top
-            for(int i = 0; i < 14; i++){
+            for(int i = 0; i < exclusionSize; i++){
                 if(get_bit_px(x+i,y) == 0){
                     countBlack++;
                 }
             }
             // Bottom
-            for(int i = 0; i < 14; i++){
-                if(get_bit_px(x+i,y+13) == 0){
+            for(int i = 0; i < exclusionSize; i++){
+                if(get_bit_px(x+i,y+(exclusionSize-1)) == 0){
                     countBlack++;
                 }
             }
             //Left
-            for(int j = 1; j <= 12; j++){
+            for(int j = 1; j <= exclusionSize-2; j++){
                 if(get_bit_px(x,y+j) == 0){
                     countBlack++;
                 }
             }
             //Right
             // Ikke < 13 men <= 12
-            for(int j = 1; j <= 12; j++){
-                if(get_bit_px(x+13,y+j) == 0){
+            for(int j = 1; j <= exclusionSize-2; j++){
+                if(get_bit_px(x+(exclusionSize-1),y+j) == 0){
                     countBlack++;
                 }
             }
-            if(countBlack == 52){
+            if(countBlack == exclusionSize*4-4){
                 if(detectCoconut(x,y)){
                 }
-                y+=12;
+                y+=exclusionSize-2;
             }
             countBlack = 0;
             
@@ -186,19 +194,25 @@ int drawRedCross(void){
         }
     }
 }
-void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
-    [BMP_HEIGTH][BMP_CHANNELS],
-    char * output_file_path
-);
+
 
 int main(void){
-    //read_bitmap("samples/easy/1EASY.bmp", image);
+    read_bitmap("samples/easy/1EASY.bmp", image);
+    //read_bitmap("samples/easy/2EASY.bmp", image);
+    //read_bitmap("samples/medium/1MEDIUM.bmp", image);
+    //read_bitmap("samples/impossible/1IMPOSSIBLE.bmp", image);
     start = clock();
-    read_bitmap("samples/medium/1MEDIUM.bmp", image);
-    threshHold();  
-    convertBitTo3D();
-    //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    //read_bitmap("samples/hard/1HARD.bmp", image);
+    threshHold(); 
+    convertBitTo3D(); 
+    
+    write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
+    //write_bitmap(output_image, "samples/easy/2EASY_gray.bmp");
+    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    //write_bitmap(output_image, "samples/hard/1HARD_gray.bmp");
+
+    //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray.bmp");
+
     printf("%d ",countCells);
 
     while(finish){
@@ -206,9 +220,11 @@ int main(void){
     erosion();
     detectCells();
     convertBitTo3D();
-    //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
-
+    write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
+    //write_bitmap(output_image, "samples/easy/2EASY_gray2.bmp");
+    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
+    //write_bitmap(output_image, "samples/hard/1HARD_gray2.bmp");
+    //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray2.bmp");
     // Stop requirement, stop if all pixels are black
     int whiteCount = 0;
     for(x = 0; x < BMP_WIDTH; x++){
@@ -227,8 +243,11 @@ int main(void){
     }
 
     drawRedCross();
-    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
-    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    //write_bitmap(image, "samples/easy/2EASY_detected.bmp");
+    //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    //write_bitmap(image, "samples/hard/1HARD_detected.bmp");
+    //write_bitmap(image, "samples/impossible/1IMPOSSIBLE_detected.bmp");
     end = clock(); 
     cpu_time_used = end - start;
     printf("Total time: %f ms\n", cpu_time_used * 1000.0 /
