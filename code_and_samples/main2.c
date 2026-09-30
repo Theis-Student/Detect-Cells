@@ -17,7 +17,7 @@ int j = BMP_HEIGTH;
 int a = BMP_WIDTH;
 int b = BMP_HEIGTH;
 
-int exclusionSize = 18;
+int exclusionSize = 15;
 
 int countCells = 0;
 
@@ -81,38 +81,72 @@ int threshHold(void){
     return 0;
 }
 
-void erosion(){
+void erosion(void) {
     int neighbors = 0;
     unsigned char out[BMP_WIDTH][BMP_HEIGTH];
 
-    for (x = 0;x < BMP_WIDTH; x++){
-        for (y = 0; y < BMP_HEIGTH; y++){
-            if (gray_px[x][y] > 0){
-            for(int i = -2; i <= 2; i++){
-                for(int j = -2; j <= 2; j++){
-                    if (x + i >= 0 && x + i < BMP_WIDTH &&
-                        y + j >= 0 && y + j < BMP_HEIGTH) {
+    for (x = 0; x < BMP_WIDTH; x++) {
+        for (y = 0; y < BMP_HEIGTH; y++) {
 
-                            if (i != 0 || j != 0) {
-                            if (gray_px[x + i][y + j] > 0) {
-                                neighbors++;
+            neighbors = 0;
+
+            // If the pixel is already black, keep it black
+            if (gray_px[x][y] == 0) {
+                out[x][y] = 0;
+                continue;
+            }
+
+            // Check the 12 pixels in the star pattern
+            for (int i = -2; i <= 2; i++) {
+                for (int j = -2; j <= 2; j++) {
+
+                    // Star pattern
+                    int is_star =
+                        (j == -2 && i == 0) ||
+                        (j == -1 && i >= -1 && i <= 1) ||
+                        (j ==  0 && i != 0) ||
+                        (j ==  1 && i >= -1 && i <= 1) ||
+                        (j ==  2 && i == 0);
+
+                    if (is_star) {
+
+                        // If ANY part of the pattern is outside
+                        // the image, treat it as a black pixel.
+                        if (x + i < 0 ||
+                            x + i >= BMP_WIDTH ||
+                            y + j < 0 ||
+                            y + j >= BMP_HEIGTH) {
+
+                            neighbors = -1;
+                            break;
+                        }
+
+                        // Count white neighbors
+                        if (gray_px[x + i][y + j] > 0) {
+                            neighbors++;
                         }
                     }
                 }
-            } 
-        }      
-        }         
-            if (neighbors >= 23){
-                out[x][y] = gray_px[x][y];
+
+                // Stop checking if we already found
+                // that the pattern goes outside the image
+                if (neighbors == -1) {
+                    break;
+                }
+            }
+
+            // Center survives only if ALL 12 neighbors are white
+            if (neighbors >= 11) {
+                out[x][y] = 255;
             } else {
                 out[x][y] = 0;
             }
-            //printf("%d ",neighbors);
-            neighbors = 0;
-            }
         }
-    for(x = 0; x < BMP_WIDTH; x++){
-        for(y = 0; y < BMP_HEIGTH;y++){
+    }
+
+    // Copy result back into gray_px
+    for (x = 0; x < BMP_WIDTH; x++) {
+        for (y = 0; y < BMP_HEIGTH; y++) {
             gray_px[x][y] = out[x][y];
         }
     }
@@ -133,7 +167,7 @@ int detectCoconut(int x, int y){
                     cell_list[countCells].y = y + ((exclusionSize-2)/2);
 
                     countCells++;
-                    //printf("%d ",countCells);
+                    printf("%d ",countCells);
                     return 1;
                 }
             }
@@ -227,7 +261,7 @@ int main(void){
     countBlack = 0;
     erosion();
     detectCells();
-    //sleep(1);
+    //sleep(5);
     convert2Dto3D();
     //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
