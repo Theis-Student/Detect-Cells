@@ -129,7 +129,7 @@ int detectCoconut(int x, int y){
                     cell_list[countCells].y = y + 6;
 
                     countCells++;
-                    printf("%d ",countCells);
+                    //printf("%d ",countCells);
                     return 1;
                 }
             }
@@ -169,7 +169,7 @@ int detectCells(){
             }
             if(countBlack == 52){
                 if(detectCoconut(x,y)){
-                    y+=12; // To the next 12 X 12
+                    //y+=12; // To the next 12 X 12
                 }
                 
             }
@@ -215,7 +215,7 @@ int main(void){
     read_bitmap("samples/easy/1EASY.bmp", image);
     start = clock();
     //read_bitmap("samples/easy/1EASY.bmp", image);
-   read_bitmap("samples/medium/1MEDIUM.bmp", image);
+   //read_bitmap("samples/medium/1MEDIUM.bmp", image);
 
     grayScale();
     threshHold();
@@ -227,9 +227,9 @@ int main(void){
     countBlack = 0;
     erosion();
     detectCells();
-    sleep(1);
-    convert2Dto3D();
-    write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
+    //sleep(1);
+    //convert2Dto3D();
+    //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
 
     // Stop requirement, stop if all pixels are black
     int whiteCount = 0;
@@ -240,19 +240,20 @@ int main(void){
             }
         }
     }
-    if(whiteCount = 0){
+    if(whiteCount == 0){
         finish = 0;
     }
     }
     
+    /*
     for(int k = 0; k < countCells; k++){
         printf("Celle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
     }
-
+    */
     drawRedCross();
     write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
-    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
     end = clock();
     cpu_time_used = end - start;
     printf("Total time: %f ms\n", cpu_time_used * 1000.0/ CLOCKS_PER_SEC);
