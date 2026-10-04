@@ -199,23 +199,23 @@ int drawRedCross(void){
 
 
 int main(void){
+    start = clock();
     //read_bitmap("samples/easy/1EASY.bmp", image);
     //read_bitmap("samples/easy/2EASY.bmp", image);
-    read_bitmap("samples/medium/1MEDIUM.bmp", image);
+    //read_bitmap("samples/medium/1MEDIUM.bmp", image);
     //read_bitmap("samples/impossible/1IMPOSSIBLE.bmp", image);
-    start = clock();
-    //read_bitmap("samples/hard/1HARD.bmp", image);
+    read_bitmap("samples/hard/1HARD.bmp", image);
     threshHold(); 
     convertBitTo3D(); 
     
     //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
     //write_bitmap(output_image, "samples/easy/2EASY_gray.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
     //write_bitmap(output_image, "samples/hard/1HARD_gray.bmp");
 
     //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray.bmp");
 
-    printf("%d ",countCells);
+    //printf("%d ",countCells);
 
     while(finish){
     countBlack = 0;
@@ -224,7 +224,7 @@ int main(void){
     convertBitTo3D();
     //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     //write_bitmap(output_image, "samples/easy/2EASY_gray2.bmp");
-    write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
+    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
     //write_bitmap(output_image, "samples/hard/1HARD_gray2.bmp");
     //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray2.bmp");
     // Stop requirement, stop if all pixels are black
@@ -240,15 +240,17 @@ int main(void){
         finish = 0;
     }
     }
+    /*
     for(int k = 0; k < countCells; k++){
         printf("\nCelle %3d: x = %3d, y = %3d\n", k + 1, cell_list[k].x, cell_list[k].y);
     }
+    */
 
     drawRedCross();
     //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/easy/2EASY_detected.bmp");
-    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
-    //write_bitmap(image, "samples/hard/1HARD_detected.bmp");
+    //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    write_bitmap(image, "samples/hard/1HARD_detected.bmp");
     //write_bitmap(image, "samples/impossible/1IMPOSSIBLE_detected.bmp");
     end = clock(); 
     cpu_time_used = end - start;
