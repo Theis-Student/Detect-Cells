@@ -15,6 +15,8 @@ int countBlack = 0;
 
 int exclusionSize = 14;
 int bordermargin = 0;
+int patternSize = 1;
+int neighborLimit = 7;
 
 typedef struct{
     int x;
@@ -91,8 +93,8 @@ void erosion(){
 
             if (get_bit_px(x,y) == 1){
                 int neighbors = 0;
-                for(int i = -1; i <= 1; i++){
-                    for(int j = -1; j <= 1; j++){
+                for(int i = -patternSize; i <= patternSize; i++){
+                    for(int j = -patternSize; j <= patternSize; j++){
 
                     if(i == 0 && j == 0) continue;
                     if (x + i >= 0 && x + i < BMP_WIDTH &&
@@ -101,7 +103,7 @@ void erosion(){
                 }
             } 
         }             
-            if (neighbors >= 7){
+            if (neighbors >= neighborLimit){
                 bitOut[x][y/8] |= (1 << (y % 8));
             }
             }
