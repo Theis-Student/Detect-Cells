@@ -221,7 +221,6 @@ int main(void){
     threshHold();
     convert2Dto3D();
     write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
-    printf("%d ",countCells);
 
     while(finish){
     countBlack = 0;
