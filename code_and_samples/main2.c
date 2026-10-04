@@ -212,16 +212,17 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
 );
 
 int main(void){
-    read_bitmap("samples/easy/1EASY.bmp", image);
     start = clock();
     //read_bitmap("samples/easy/1EASY.bmp", image);
-   //read_bitmap("samples/medium/1MEDIUM.bmp", image);
+    
+    //read_bitmap("samples/easy/1EASY.bmp", image);
+    //read_bitmap("samples/medium/1MEDIUM.bmp", image);
+    read_bitmap("samples/hard/1HARD.bmp",image);
 
     grayScale();
     threshHold();
     convert2Dto3D();
-    write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
-
+    //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
     while(finish){
     countBlack = 0;
     erosion();
@@ -250,9 +251,10 @@ int main(void){
     }
     */
     drawRedCross();
-    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    write_bitmap(image, "samples/hard/1HARD_detected.bmp");
     end = clock();
     cpu_time_used = end - start;
     printf("Total time: %f ms\n", cpu_time_used * 1000.0/ CLOCKS_PER_SEC);
