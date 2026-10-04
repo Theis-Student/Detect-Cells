@@ -84,7 +84,6 @@ int threshHold(void){
 
 void erosion(){
 
-    unsigned char out[BMP_WIDTH][BMP_HEIGTH];    
     unsigned char bitOut[BMP_WIDTH][BIT_HEIGHT] = {0};
 
     for (x = 0;x < BMP_WIDTH; x++){
