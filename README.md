@@ -5,4 +5,4 @@ The Pattern is in a 7of8 pattern by default, but can also be changed to a 23of24
 
 If you want the results as in the marginborder change the variable bordermargin = 0 to bordermargin = 1 Ln 17.
 
-If the program doesnt run then first make sure you are in the correct folder /codes_and_samples/ and try building it with the command "gcc main2.c cbmp.c -o main2.exe" and then running the build with .\main2.exe
+If the program doesnt run then first make sure you are in the correct folder /codes_and_samples/ and try building it with the command "gcc main2.c cbmp.c -o main2.exe" and then running the build with ".\main2.exe"
