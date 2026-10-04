@@ -13,8 +13,8 @@ int countCells = 0;
 int finish = 1;
 int countBlack = 0;
 
-int exclusionSize = 18;
-int bordermargin = 2;
+int exclusionSize = 14;
+int bordermargin = 0;
 
 typedef struct{
     int x;
@@ -164,9 +164,8 @@ int detectCells(){
                 }
             }
 
-            if(countBlack >= totalborder-bordermargin){
+            if(countBlack == totalborder-bordermargin){
                 if(detectCoconut(x,y)){
-                    x+= exclusionSize - 2;
                 }
                 y+=exclusionSize-2;
             }
@@ -200,11 +199,11 @@ int drawRedCross(void){
 
 int main(void){
     start = clock();
-    //read_bitmap("samples/easy/1EASY.bmp", image);
+    read_bitmap("samples/easy/1EASY.bmp", image);
     //read_bitmap("samples/easy/2EASY.bmp", image);
     //read_bitmap("samples/medium/1MEDIUM.bmp", image);
     //read_bitmap("samples/impossible/1IMPOSSIBLE.bmp", image);
-    read_bitmap("samples/hard/1HARD.bmp", image);
+    //read_bitmap("samples/hard/1HARD.bmp", image);
     threshHold(); 
     convertBitTo3D(); 
     
@@ -247,10 +246,10 @@ int main(void){
     */
 
     drawRedCross();
-    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/easy/2EASY_detected.bmp");
     //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
-    write_bitmap(image, "samples/hard/1HARD_detected.bmp");
+    //write_bitmap(image, "samples/hard/1HARD_detected.bmp");
     //write_bitmap(image, "samples/impossible/1IMPOSSIBLE_detected.bmp");
     end = clock(); 
     cpu_time_used = end - start;
