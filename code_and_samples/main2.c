@@ -14,6 +14,7 @@ int finish = 1;
 int countBlack = 0;
 
 int exclusionSize = 18;
+int bordermargin = 2;
 
 typedef struct{
     int x;
@@ -91,8 +92,8 @@ void erosion(){
 
             if (get_bit_px(x,y) == 1){
                 int neighbors = 0;
-                for(int i = -2; i <= 2; i++){
-                    for(int j = -2; j <= 2; j++){
+                for(int i = -1; i <= 1; i++){
+                    for(int j = -1; j <= 1; j++){
 
                     if(i == 0 && j == 0) continue;
                     if (x + i >= 0 && x + i < BMP_WIDTH &&
@@ -101,7 +102,7 @@ void erosion(){
                 }
             } 
         }             
-            if (neighbors >= 23){
+            if (neighbors >= 7){
                 bitOut[x][y/8] |= (1 << (y % 8));
             }
             }
@@ -116,8 +117,8 @@ int detectCoconut(int x, int y){
             for(int b = 1; b <= exclusionSize-2; b++){
                 if(get_bit_px(x+a,y+b) == 1){
                     
-                    for(int n = 1; n <= exclusionSize-2; n++){
-                        for(int m = 1; m <= exclusionSize-2; m++){
+                    for(int n = 0; n <= exclusionSize-1; n++){
+                        for(int m = 0; m <= exclusionSize-1; m++){
                             bit_px(x+n,y+m,0);
                         }
                     }
@@ -135,6 +136,7 @@ int detectCoconut(int x, int y){
 
 int detectCells(){
     countBlack = 0;
+    int totalborder = exclusionSize * 4 - 4;
     for(x = 0; x < BMP_WIDTH-exclusionSize; x++){
         for(y = 0; y < BMP_HEIGTH-exclusionSize; y++){
             // Top
@@ -162,13 +164,14 @@ int detectCells(){
                     countBlack++;
                 }
             }
-            if(countBlack == exclusionSize*4-4){
+
+            if(countBlack >= totalborder-bordermargin){
                 if(detectCoconut(x,y)){
+                    x+= exclusionSize - 2;
                 }
                 y+=exclusionSize-2;
             }
             countBlack = 0;
-            
         }
     }
 }
@@ -197,18 +200,18 @@ int drawRedCross(void){
 
 
 int main(void){
-    read_bitmap("samples/easy/1EASY.bmp", image);
+    //read_bitmap("samples/easy/1EASY.bmp", image);
     //read_bitmap("samples/easy/2EASY.bmp", image);
-    //read_bitmap("samples/medium/1MEDIUM.bmp", image);
+    read_bitmap("samples/medium/1MEDIUM.bmp", image);
     //read_bitmap("samples/impossible/1IMPOSSIBLE.bmp", image);
     start = clock();
     //read_bitmap("samples/hard/1HARD.bmp", image);
     threshHold(); 
     convertBitTo3D(); 
     
-    write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
+    //write_bitmap(output_image, "samples/easy/1EASY_gray.bmp");
     //write_bitmap(output_image, "samples/easy/2EASY_gray.bmp");
-    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
+    write_bitmap(output_image, "samples/medium/1MEDIUM_gray.bmp");
     //write_bitmap(output_image, "samples/hard/1HARD_gray.bmp");
 
     //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray.bmp");
@@ -220,9 +223,9 @@ int main(void){
     erosion();
     detectCells();
     convertBitTo3D();
-    write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
+    //write_bitmap(output_image, "samples/easy/1EASY_gray2.bmp");
     //write_bitmap(output_image, "samples/easy/2EASY_gray2.bmp");
-    //write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
+    write_bitmap(output_image, "samples/medium/1MEDIUM_gray2.bmp");
     //write_bitmap(output_image, "samples/hard/1HARD_gray2.bmp");
     //write_bitmap(output_image, "samples/impossible/1IMPOSSIBLE_gray2.bmp");
     // Stop requirement, stop if all pixels are black
@@ -243,9 +246,9 @@ int main(void){
     }
 
     drawRedCross();
-    write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
     //write_bitmap(image, "samples/easy/2EASY_detected.bmp");
-    //write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
     //write_bitmap(image, "samples/hard/1HARD_detected.bmp");
     //write_bitmap(image, "samples/impossible/1IMPOSSIBLE_detected.bmp");
     end = clock(); 
