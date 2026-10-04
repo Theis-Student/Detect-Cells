@@ -3,6 +3,10 @@
 #include <time.h> 
 #include <unistd.h> 
 
+clock_t start, end;
+
+double cpu_time_used;
+
 int x = BMP_WIDTH;
 int y = BMP_HEIGTH;
 
@@ -208,7 +212,14 @@ void write_bitmap(unsigned char input_image_array[BMP_WIDTH]
 );
 
 int main(void){
+<<<<<<< HEAD
     read_bitmap("samples/easy/1EASY.bmp", image);
+=======
+    start = clock();
+    //read_bitmap("samples/easy/1EASY.bmp", image);
+   read_bitmap("samples/medium/1MEDIUM.bmp", image);
+
+>>>>>>> b6fcaaa (Time added)
     grayScale();
     threshHold();
     convert2Dto3D();
@@ -242,6 +253,14 @@ int main(void){
     }
 
     drawRedCross();
+<<<<<<< HEAD
     write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+=======
+    //write_bitmap(image, "samples/easy/1EASY_detected.bmp");
+    write_bitmap(image, "samples/medium/1MEDIUM_detected.bmp");
+    end = clock();
+    cpu_time_used = end - start;
+    printf("Total time: %f ms\n", cpu_time_used * 1000.0/ CLOCKS_PER_SEC);
+>>>>>>> b6fcaaa (Time added)
     return 0;
 }
